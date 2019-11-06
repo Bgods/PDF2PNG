@@ -103,10 +103,11 @@ class Func():
                         pass
                     pm.writePNG(path + os.sep + base_name[:-4] + '_' + '{:0>3d}.{}'.format(pg+1,'png'))  # 保存图片
                 pdf.close()
-                messagebox.showinfo('信息', '转化成功！')
-                self.gui.button1.config(text=u'PDF转IMG')
+
                 self.is_start = False  # 线程结束，运行状态变为False
                 self.file_dir = None  # 初始化图片文件夹地址
+                self.gui.button1.config(text=u'PDF转IMG')
+                messagebox.showinfo('信息', '转化成功！')
             else:
                 messagebox.showwarning('警告!', '文件类型错误,请打开pdf文件类型!')
 
@@ -128,17 +129,18 @@ class Func():
                 img_pdf.close()
             doc.save(dir_name + os.sep + base_name + ".pdf")  # 保存文档
             doc.close()
-            messagebox.showinfo('信息', '转化成功！')
-            self.gui.button1.config(text=u'IMG转PDF')
+
+            self.gui.button2.config(text=u'IMG转PDF')
             self.is_start = False  # 线程结束，运行状态变为False
             self.pdf_name = None  # 初始化地址
+            messagebox.showinfo('信息', '转化成功！')
 
     def pdf2pdf(self):
         self.pdf_name = easygui.fileopenbox()  # 打开pdf文件
         if self.pdf_name:
             if self.pdf_name[-4:].lower() == '.pdf':
                 self.is_start = True  # 线程启动，运行状态变为True
-                self.gui.button1.config(text=u'运行中...')
+                self.gui.button3.config(text=u'运行中...')
 
                 # 1、创建临时路径path
                 dir_name, base_name = get_dir_name(self.pdf_name)
@@ -173,14 +175,14 @@ class Func():
 
                     # 4、删除临时路径及其下的图片
                     shutil.rmtree(path)
-
+                    self.gui.button3.config(text=u'PDF转图片型PDF')
+                    self.is_start = False  # 线程结束，运行状态变为False
+                    self.file_dir = None  # 初始化图片文件夹地址
                     messagebox.showinfo('信息', '转化成功！')
+
                 except BaseException as e:
                     messagebox.showinfo('错误信息', f'{e}')
 
-                self.gui.button1.config(text=u'PDF转IMG')
-                self.is_start = False  # 线程结束，运行状态变为False
-                self.file_dir = None  # 初始化图片文件夹地址
             else:
                 messagebox.showwarning('警告!', '文件类型错误,请打开pdf文件类型!')
 
