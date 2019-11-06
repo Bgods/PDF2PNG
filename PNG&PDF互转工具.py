@@ -90,18 +90,16 @@ class Func():
                 self.is_start = True  # 线程启动，运行状态变为True
                 self.gui.button1.config(text=u'运行中...')
                 dir_name, base_name = get_dir_name(self.pdf_name)
+                path = self.mkdir(dir_name, base_name[:-4])
+                os.makedirs(path)
+
                 pdf = fitz.open(self.pdf_name)
                 for pg in range(0, pdf.pageCount):
                     page = pdf[pg]  # 获得每一页的对象
                     zoom = self.gui.scale.get()  # 值越大，生成图像像素越高
                     trans = fitz.Matrix(zoom, zoom).preRotate(0)
                     pm = page.getPixmap(matrix=trans, alpha=False)  # 获得每一页的流对象
-                    path = dir_name + os.sep + base_name[:-4]
-                    try:
-                        os.makedirs(path)
-                    except:
-                        pass
-                    pm.writePNG(path + os.sep + base_name[:-4] + '_' + '{:0>3d}.{}'.format(pg+1,'png'))  # 保存图片
+                    pm.writePNG(path + os.sep + base_name[:-4] + '_' + '{:0>3d}.{}'.format(pg+1, 'png'))  # 保存图片
                 pdf.close()
 
                 self.is_start = False  # 线程结束，运行状态变为False
@@ -127,7 +125,8 @@ class Func():
                 doc.insertPDF(img_pdf)  # 将单个文件插入到文档
                 img_doc.close()
                 img_pdf.close()
-            doc.save(dir_name + os.sep + base_name + ".pdf")  # 保存文档
+            filename = self.mkdir(dir_name, base_name, '.pdf')
+            doc.save(filename)  # 保存文档
             doc.close()
 
             self.gui.button2.config(text=u'IMG转PDF')
@@ -144,12 +143,11 @@ class Func():
 
                 # 1、创建临时路径path
                 dir_name, base_name = get_dir_name(self.pdf_name)
-                path = dir_name + os.sep + base_name[:-4]
-                if os.path.exists(path):
-                    path = path + os.sep + '01'
+                path = self.mkdir(dir_name, base_name[:-4])
+                os.makedirs(path)
+
                 try:
                     # 2、将pdf转成图片，保存到path路径中
-                    os.makedirs(path)
                     pdf = fitz.open(self.pdf_name)
                     for pg in range(0, pdf.pageCount):
                         page = pdf[pg]  # 获得每一页的对象
@@ -170,7 +168,8 @@ class Func():
                         doc.insertPDF(img_pdf)  # 将单个文件插入到文档
                         img_doc.close()
                         img_pdf.close()
-                    doc.save(dir_name + os.sep + base_name + ".pdf")  # 保存文档
+                    filename = self.mkdir(dir_name, base_name, '.pdf')
+                    doc.save(filename)  # 保存文档
                     doc.close()
 
                     # 4、删除临时路径及其下的图片
@@ -185,6 +184,13 @@ class Func():
 
             else:
                 messagebox.showwarning('警告!', '文件类型错误,请打开pdf文件类型!')
+
+    def mkdir(self, path, filename, type=''):
+        path_file = path + os.sep + filename + type
+        if os.path.exists(path_file):
+            return self.mkdir(path, filename + '_副本', type)
+        else:
+            return path_file
 
     # 为pdf2img单独开一个线程
     def Thread1(self):
